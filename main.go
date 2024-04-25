@@ -18,7 +18,7 @@ const (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go [init|create|convert|git <git_command> [<version_name>]]")
+		fmt.Println("Usage: lvc [init|create|convert|git <git_command> [<version_name>]]")
 		return
 	}
 
@@ -41,7 +41,7 @@ func main() {
 		}
 	case "convert":
 		if len(os.Args) < 3 {
-			fmt.Println("Usage: go run main.go convert <version_name>")
+			fmt.Println("Usage: lvc convert <version_name>")
 			return
 		}
 		versionName := os.Args[2]
@@ -53,7 +53,7 @@ func main() {
 		}
 	case "git":
 		if len(os.Args) < 3 {
-			fmt.Println("Usage: go run main.go git <git_command> [<version_name>]")
+			fmt.Println("Usage: lvc git <git_command> [<version_name>]")
 			return
 		}
 		gitCommand := os.Args[2]
