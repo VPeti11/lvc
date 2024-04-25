@@ -8,22 +8,6 @@ This is a simple version control system. It allows you to initialize a database,
 
 lcv init
 
-### Create Version
-
-lcv create
-
-Creates a new version. It copies all files and folders except `lvc.db` and folders starting with "Version " into a new version folder.
-
-# Version Control System (VCS) in Go
-
-This is a simple version control system implemented in Go. It allows you to initialize a database, create versions, convert versions into Git repositories, and execute Git commands within specific version folders.
-
-## Usage
-
-### Initialize Database
-
-lcv init
-
 Initializes the database.
 
 ### Create Version
