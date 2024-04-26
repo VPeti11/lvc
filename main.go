@@ -35,7 +35,6 @@ func main() {
 	case "create":
 		err := createVersion()
 		if err != nil {
-			fmt.Println("Error creating version:", err)
 		} else {
 			fmt.Println("Version created successfully.")
 		}
@@ -215,35 +214,57 @@ func writeDatabaseValue(value int) error {
 }
 
 func copyAllFiles(srcDir, destDir string) error {
-	return filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
+	currentValue, err := readDatabaseValue()
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("please run 'init' first")
+		}
+		return err
+	}
+	previousVersionFolder := fmt.Sprintf("%s %d", versionFolder, currentValue-1)
+
+	err = filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
+		// Skip the database file and version folders
 		if path == databaseFileName || strings.HasPrefix(info.Name(), versionFolder) {
 			return nil
 		}
 
 		dest := filepath.Join(destDir, strings.TrimPrefix(path, srcDir))
 		if info.IsDir() {
-			return os.MkdirAll(dest, 0755)
-		}
+			// Ensure destination directory exists
+			os.MkdirAll(dest, 0755)
+		} else {
+			source, err := os.Open(path)
+			defer source.Close()
 
-		source, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer source.Close()
+			destination, err := os.Create(dest)
+			if err != nil {
+				return err
+			}
+			defer destination.Close()
 
-		destination, err := os.Create(dest)
-		if err != nil {
-			return err
+			_, err = io.Copy(destination, source)
+			if err != nil {
+				return err
+			}
 		}
-		defer destination.Close()
-
-		_, err = io.Copy(destination, source)
-		return err
+		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	// Remove the previous version folder after copying
+	if err := os.RemoveAll(previousVersionFolder); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func runCmdAndWait(cmd *exec.Cmd) error {
